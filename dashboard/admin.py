@@ -113,6 +113,6 @@ class SiteIconAdmin(admin.ModelAdmin):
     icon_preview.short_description = "Login Image"
 
 
-admin.site.site_header = "GMAIL SHOOTER 8.0"
-admin.site.site_title = "GMAIL SHOOTER 8.0"
-admin.site.index_title = "GMAIL SHOOTER 8.0"
+admin.site.site_header = "API SHOOTER"
+admin.site.site_title = "API SHOOTER"
+admin.site.index_title = "API SHOOTER"

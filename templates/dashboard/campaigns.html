@@ -19,16 +19,6 @@
                     <form method="post" class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg">
                         {% csrf_token %}
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Frequency Field -->
-                            <div>
-                                <label for="frequency" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                                    Frequency
-                                </label>
-                                <div class="relative">
-                                    {{ form.frequency|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
-                                </div>
-                            </div>
-                    
                             <!-- Machine IP Field -->
                             <div>
                                 <label for="ip_address" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
@@ -38,17 +28,7 @@
                                     {{ form.ip_address|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
                                     <small id="ip-loading" class="text-gray-500 dark:text-gray-400 hidden">Fetching IP...</small>
                                 </div>
-                            </div>
-
-                            <div>
-                                <label for="frequency" class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                                    Send From
-                                </label>
-                                <div class="relative">
-                                    {{ form.sending_from|add_class:"w-full px-4 py-2 text-sm border rounded-lg dark:bg-slate-800 dark:text-white dark:border-gray-700 focus:ring-2 focus:ring-blue-500 focus:outline-none" }}
-                                </div>
-                            </div>
-                            
+                            </div>                            
                         </div>
                     
                         <!-- Action Buttons -->

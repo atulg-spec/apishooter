@@ -98,8 +98,7 @@ class BulkUploadForm(forms.Form):
 class CampaignForm(forms.ModelForm):
     class Meta:
         model = Campaign
-        fields = ['frequency', 'ip_address', 'sending_from']
+        fields = ['ip_address']
         widgets = {
-            'frequency': forms.NumberInput(attrs={'class': 'form-control'}),
             'ip_address': forms.TextInput(attrs={'class': 'form-control'}),
         }

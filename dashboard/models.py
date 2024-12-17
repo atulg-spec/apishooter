@@ -187,9 +187,7 @@ sending_choices = [
 class Campaign(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True, null=True)
     status = models.CharField(choices=status_choices, max_length=12, default="created")
-    frequency = models.PositiveIntegerField(default=10)
     ip_address = models.GenericIPAddressField(blank=True, null=True)
-    sending_from = models.CharField(choices=sending_choices, max_length=12, default="inbox")
     date_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

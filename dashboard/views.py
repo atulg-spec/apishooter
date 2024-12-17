@@ -553,9 +553,7 @@ def getcampaigns(request,ipaddress):
         accounts.append({'user':acc.user.username,'email':acc.email, 'password':acc.password, 'google_token':acc.google_token, 'credentials':acc.credentials})
     campaign_data = {
             'id': campaign.id,
-            'send_from': campaign.sending_from,
             'custom_tags': custom_tag_data,
-            'frequency': campaign.frequency,
             'accounts': accounts,
             'emails': emails,
             'messages': messages,

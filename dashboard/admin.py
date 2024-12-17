@@ -75,7 +75,7 @@ class MessagesAdmin(admin.ModelAdmin):
 class CampaignAdmin(admin.ModelAdmin):
     list_display = ('user', 'status', 'ip_address', 'date_time')
     search_fields = ('ip_address', 'user__username')
-    list_filter = ('status', 'date_time', 'sending_from')
+    list_filter = ('status', 'date_time')
     ordering = ('-date_time',)
 
 # Inline Configurations

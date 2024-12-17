@@ -56,8 +56,6 @@
                                 <th class="px-6 py-3 text-center">Machine</th>
                                 <th class="px-6 py-3 text-center">Status</th>
                                 <th class="px-6 py-3 text-center">Created At</th>
-                                <th class="px-6 py-3 text-center">Frequency</th>
-                                <th class="px-6 py-3 text-center">Sending From</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -76,12 +74,6 @@
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     {{ campaign.date_time|date:"M d, Y h:i A" }}
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    {{ campaign.frequency }}
-                                </td>
-                                <td class="px-6 py-4 text-center">
-                                    {{ campaign.sending_from }}
                                 </td>
                             </tr>
                             {% empty %}

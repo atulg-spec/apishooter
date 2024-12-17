@@ -73,7 +73,7 @@ class MessagesAdmin(admin.ModelAdmin):
 
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
-    list_display = ('user', 'status', 'frequency', 'sending_from', 'ip_address', 'date_time')
+    list_display = ('user', 'status', 'ip_address', 'date_time')
     search_fields = ('ip_address', 'user__username')
     list_filter = ('status', 'date_time', 'sending_from')
     ordering = ('-date_time',)

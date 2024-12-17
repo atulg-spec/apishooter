@@ -6,7 +6,6 @@ from django.views.static import serve
 
 urlpatterns = [
     path('adminpanel/', admin.site.urls),
-    path('gmailer/', include('gmailer.urls')),
     path('', include('dashboard.urls')),  # Replace `your_app_name` with the name of your app
 ]
 

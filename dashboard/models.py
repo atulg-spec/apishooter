@@ -127,6 +127,8 @@ class Messages(models.Model):
     attachment_content = models.TextField(default='', blank=True, null=True)
     attachment = models.FileField(upload_to='attachments/', blank=True, null=True)  # To handle file attachments like images or PDFs
     file_name = models.CharField(max_length=150, default='file')
+    sender_name = models.CharField(max_length=150, default="{randomName}")
+    unsuscribe_url = models.CharField(max_length=150, default="mailto:{receiverEmail}")
 
     def clean(self):
         # Validation for format_type

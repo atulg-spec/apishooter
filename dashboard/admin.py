@@ -67,7 +67,7 @@ class TagsDataAdmin(admin.ModelAdmin):
 
 @admin.register(Messages)
 class MessagesAdmin(admin.ModelAdmin):
-    list_display = ('subject', 'user','format_type')
+    list_display = ('subject', 'user','format_type', 'sender_name')
     search_fields = ('subject', 'content','format_type')
     list_filter = ('user','format_type')
 

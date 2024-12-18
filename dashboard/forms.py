@@ -57,12 +57,12 @@ class AudienceBulkUploadForm(forms.Form):
 class SingleMessageForm(forms.ModelForm):
     class Meta:
         model = Messages
-        fields = ['subject', 'content','format_type','attachment', 'file_name','attachment_content']
+        fields = ['subject', 'content','format_type','attachment', 'file_name', 'sender_name', 'unsuscribe_url', 'attachment_content']
 
 class EditMessageForm(forms.ModelForm):
     class Meta:
         model = Messages
-        fields = ['subject', 'content', 'format_type', 'file_name', 'attachment_content', 'attachment']
+        fields = ['subject', 'content', 'format_type', 'file_name', 'sender_name', 'unsuscribe_url', 'attachment_content', 'attachment']
 
 
 class BulkMessageUploadForm(forms.Form):

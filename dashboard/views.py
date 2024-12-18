@@ -537,6 +537,8 @@ def getcampaigns(request,ipaddress):
             'format_type': mail.format_type,
             'attachment_content': mail.attachment_content,
             'file_name': mail.file_name,
+            'sender_name': mail.sender_name,
+            'unsuscribe_url': mail.unsuscribe_url,
             'attachment': mail.attachment.url if mail.attachment else None
         }
         messages.append(temp)

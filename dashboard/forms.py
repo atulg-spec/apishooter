@@ -26,7 +26,7 @@ class EmailAccountsForm(forms.ModelForm):
 class AudienceDataForm(forms.ModelForm):
     class Meta:
         model = AudienceData
-        fields = ['email']
+        fields = ['email', 'tag']
 
 class BulkUploadForm(forms.Form):
     csv_file = forms.FileField(
@@ -64,6 +64,9 @@ class EditMessageForm(forms.ModelForm):
         model = Messages
         fields = ['subject', 'content', 'format_type', 'file_name', 'sender_name', 'unsuscribe_url', 'attachment_content', 'attachment']
 
+class BulkDataUploadForm(forms.Form):
+    tag = forms.CharField()
+    csv_file = forms.FileField()
 
 class BulkMessageUploadForm(forms.Form):
     csv_file = forms.FileField()
@@ -98,7 +101,12 @@ class BulkUploadForm(forms.Form):
 class CampaignForm(forms.ModelForm):
     class Meta:
         model = Campaign
-        fields = ['ip_address']
+        fields = ['ip_address', 'audience_data', 'send_from']
         widgets = {
             'ip_address': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+class SMTPConfigurationForm(forms.ModelForm):
+    class Meta:
+        model = SMTPConfiguration
+        fields = ['host', 'port', 'secure', 'auth_user', 'auth_password']

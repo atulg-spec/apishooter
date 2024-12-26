@@ -1,0 +1,103 @@
+{% extends 'dashboard/base.html' %}
+{% block body %}
+<div class="w-full px-6 py-6 mx-auto">
+    <!-- Add SMTP Configuration Form -->
+    <form action="/add-smtp/" method="POST">
+        {% csrf_token %}
+        <div class="w-full p-6 mx-auto">
+            <div class="flex flex-wrap -mx-3">
+                <div class="w-full px-3 shrink-0 md:flex-0">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-xl rounded-2xl bg-clip-border">
+                        <div class="border-black/12.5 rounded-t-2xl border-b-0 p-6 pb-0">
+                            <div class="flex items-center">
+                                <p class="mb-0">Add SMTP Configuration</p>
+                                <button type="submit"
+                                    class="inline-block px-8 py-2 mb-4 ml-auto font-bold text-white bg-blue-500 rounded-lg">
+                                    Save
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-auto p-6">
+                            <p class="leading-normal uppercase text-sm">SMTP Details</p>
+                            <div class="flex flex-wrap -mx-3">
+                                <div class="w-full max-w-full px-3 md:w-6/12">
+                                    <div class="mb-4">
+                                        <label for="host" class="block mb-2 text-xs font-bold">SMTP Host</label>
+                                        <input type="text" name="host" placeholder="smtp.example.com" required
+                                            class="block w-full px-3 py-2 text-sm border rounded-lg">
+                                    </div>
+                                </div>
+                                <div class="w-full max-w-full px-3 md:w-6/12">
+                                    <div class="mb-4">
+                                        <label for="port" class="block mb-2 text-xs font-bold">Port</label>
+                                        <input type="number" name="port" value="587" required
+                                            class="block w-full px-3 py-2 text-sm border rounded-lg">
+                                    </div>
+                                </div>
+                                <div class="w-full max-w-full px-3 md:w-6/12">
+                                    <div class="mb-4">
+                                        <label for="secure" class="block mb-2 text-xs font-bold">Security</label>
+                                        <select name="secure" class="block w-full px-3 py-2 text-sm border rounded-lg">
+                                            <option value="False">Non-SSL/TLS (Default Port 587)</option>
+                                            <option value="True">SSL/TLS (Port 465)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="w-full max-w-full px-3 md:w-6/12">
+                                    <div class="mb-4">
+                                        <label for="auth_user" class="block mb-2 text-xs font-bold">Auth User</label>
+                                        <input type="email" name="auth_user" placeholder="user@example.com" required
+                                            class="block w-full px-3 py-2 text-sm border rounded-lg">
+                                    </div>
+                                </div>
+                                <div class="w-full max-w-full px-3 md:w-6/12">
+                                    <div class="mb-4">
+                                        <label for="auth_password" class="block mb-2 text-xs font-bold">Auth Password</label>
+                                        <input type="password" name="auth_password" required
+                                            class="block w-full px-3 py-2 text-sm border rounded-lg">
+                                    </div>
+                                </div>
+                            </div>
+                            <hr class="my-4">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Bulk Upload Section -->
+    <form action="/add-smtp-bulk/" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="w-full p-6 mx-auto mt-6">
+            <div class="flex flex-wrap -mx-3">
+                <div class="w-full px-3 shrink-0 md:flex-0">
+                    <div
+                        class="relative flex flex-col min-w-0 break-words bg-white border-0 shadow-xl rounded-2xl bg-clip-border">
+                        <div class="border-black/12.5 rounded-t-2xl border-b-0 p-6 pb-0">
+                            <div class="flex items-center">
+                                <p class="mb-0">Bulk Upload SMTP Configurations</p>
+                                <button type="submit"
+                                    class="inline-block px-8 py-2 mb-4 ml-auto font-bold text-white bg-green-500 rounded-lg">
+                                    Upload
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex-auto p-6">
+                            <p class="leading-normal uppercase text-sm">Upload CSV</p>
+                            <div class="mb-4">
+                                <label for="csv_file" class="block mb-2 text-xs font-bold">CSV File</label>
+                                <input type="file" name="csv_file" accept=".csv" required
+                                    class="block w-full px-3 py-2 text-sm border rounded-lg">
+                            </div>
+                            <p class="text-xs text-gray-500">Ensure the CSV file has columns: <strong>Host, Port, Secure,
+                                    Auth User, Auth Password</strong>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock body %}

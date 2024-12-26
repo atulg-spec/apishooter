@@ -67,6 +67,72 @@ def home(request):
     }
     return render(request,'dashboard/home.html',context)
 
+@login_required
+def add_smtp(request):
+    if request.method == "POST":
+        host = request.POST['host']
+        port = request.POST['port']
+        secure = request.POST.get('secure', 'False') == 'True'
+        auth_user = request.POST['auth_user']
+        auth_password = request.POST['auth_password']
+        
+        SMTPConfiguration.objects.create(
+            user=request.user,
+            host=host,
+            port=port,
+            secure=secure,
+            auth_user=auth_user,
+            auth_password=auth_password
+        )
+        messages.success(request, "SMTP Configuration added successfully.")
+        return redirect('/smtp-configurations/')
+    return render(request, 'dashboard/add-smtp-configurations.html')
+
+@login_required
+def add_smtp_bulk(request):
+    if request.method == "POST" and request.FILES['csv_file']:
+        csv_file = request.FILES['csv_file']
+        decoded_file = csv_file.read().decode('utf-8').splitlines()
+        reader = csv.DictReader(decoded_file)
+        
+        for row in reader:
+            SMTPConfiguration.objects.create(
+                user=request.user,
+                host=row['Host'],
+                port=row['Port'],
+                secure=row['Secure'].lower() == 'true',
+                auth_user=row['Auth User'],
+                auth_password=row['Auth Password']
+            )
+        messages.success(request, "Bulk SMTP Configurations uploaded successfully.")
+        return redirect('/smtp-configurations/')
+    return render(request, 'dashboard/add-smtp-configurations.html')
+
+@login_required
+def smtp_configurations(request):
+    """View to display all SMTP configurations."""
+    configurations = SMTPConfiguration.objects.all()
+    return render(request, 'dashboard/smtp_configurations.html', {'configurations': configurations})
+
+@login_required
+def smtp_delete_all(request):
+    try:
+        SMTPConfiguration.objects.filter(user=request.user).delete()
+        messages.error(request,f'All data deleted successfully ! ')
+    except Exception as e:
+        messages.error(request,f'Some error occured {e}')
+    return redirect('/smtp-configurations/')
+
+@login_required
+def smtp_configuration_delete(request, pk):
+    try:
+        email_account = get_object_or_404(SMTPConfiguration, pk=pk, user=request.user)
+        email_account.delete()
+        messages.error(request,f'{email_account.email} deleted Successfully !')
+    except:
+        pass
+    return redirect('/smtp-configurations/')
+
 
 @login_required
 def email_accounts_list(request):
@@ -148,9 +214,9 @@ def email_accounts(request):
 def email_accounts_delete_all(request):
     try:
         EmailAccounts.objects.filter(user=request.user).delete()
-        messages.error(request,f'Some error occured {e}')
-    except Exception as e:
         messages.error(request,f'All data deleted successfully ! ')
+    except Exception as e:
+        messages.error(request,f'Some error occured {e}')
     return redirect('/email-accounts/')
 
 
@@ -175,9 +241,10 @@ def audience_data_view(request):
                 messages.success(request, "Audience data added successfully!")
                 return redirect('/audiences/')
         elif 'bulk' in request.POST:
-            bulk_form = BulkMessageUploadForm(request.POST, request.FILES)
+            bulk_form = BulkDataUploadForm(request.POST, request.FILES)
             if bulk_form.is_valid():
                 csv_file = request.FILES['csv_file']
+                tag = bulk_form.cleaned_data.get('tag')  
                 try:
                     decoded_file = csv_file.read().decode('utf-8').splitlines()
                     reader = csv.reader(decoded_file)
@@ -185,6 +252,7 @@ def audience_data_view(request):
                     for row in reader:
                         AudienceData.objects.create(
                             user=request.user,
+                            tag=tag,
                             email=row[0].strip(),
                         )
                     messages.success(request, "Bulk upload successful!")
@@ -481,6 +549,14 @@ def campaigns(request):
     }
     return render(request, 'dashboard/campaigns.html', context)
 
+@login_required
+def start_campaign(request, pk):
+    cp = get_object_or_404(Campaign, pk=pk, user=request.user)
+    cp.status = 'processing'
+    cp.save()
+    messages.success(request,f'Campaign started successfully !')
+    return redirect('/campaigns')
+
 
 # END CAMPAIGNS
 
@@ -509,59 +585,71 @@ def create_campaign(request):
     return JsonResponse({'error': 'Invalid request method'}, status=400)
 
 def getcampaigns(request,ipaddress):
-    campaign = Campaign.objects.filter(ip_address=ipaddress).filter(status='created')
-    if campaign:
-        campaign = campaign.first()
-        campaign.status = 'success'
-        campaign.save()
-    else:
-        return JsonResponse({'status':False,'data':{}}, safe=False)
-    tags = Tags.objects.filter(user=campaign.user)
-    custom_tag_data = []
-    for tag in tags:
-        temp_list = []
-        data = tags_data.objects.filter(user=campaign.user).filter(tag=tag)
-        for d in data:
-            temp_list.append(d.data)
-        custom_tag_data.append({tag.tag_name:temp_list})
-    emails = [mail.email for mail in AudienceData.objects.filter(user=campaign.user)]
-    msgs = Messages.objects.filter(user=campaign.user)
-    if not msgs:
-        return JsonResponse({'status':False,'data':{'error':'No Message Added'}}, safe=False)
-    messages = []
-    for mail in msgs: 
-        rendered_message = render_to_string('template.html', {'message': mail.content})
-        temp = {
-            'subject': mail.subject,
-            'mail': rendered_message,
-            'format_type': mail.format_type,
-            'attachment_content': mail.attachment_content,
-            'file_name': mail.file_name,
-            'sender_name': mail.sender_name,
-            'unsuscribe_url': mail.unsuscribe_url,
-            'attachment': mail.attachment.url if mail.attachment else None
-        }
-        messages.append(temp)
-    accounts = []
-    accountsObjects = EmailAccounts.objects.filter(user=campaign.user)
-    if not accountsObjects:
-        return JsonResponse({'status':False,'data':{'error':'No Email Accounts Added'}}, safe=False)
-    for account in accountsObjects:
-        if account.expiry_time and account.expiry_time < now():
-            account.google_token = None
-            account.expiry_time = None
-            account.save()
-    for acc in accountsObjects:
-        accounts.append({'user':acc.user.username,'email':acc.email, 'password':acc.password, 'google_token':acc.google_token, 'credentials':acc.credentials})
-    campaign_data = {
-            'id': campaign.id,
-            'custom_tags': custom_tag_data,
-            'accounts': accounts,
-            'emails': emails,
-            'messages': messages,
-        }
-    # Return JSON response
-    return JsonResponse({'status':True,'data':campaign_data}, safe=False)
+    try:
+        campaign = Campaign.objects.filter(ip_address=ipaddress).filter(status='processing')
+        if campaign:
+            campaign = campaign.first()
+            campaign.status = 'success'
+            campaign.save()
+        else:
+            return JsonResponse({'status':False,'data':{}}, safe=False)
+        tags = Tags.objects.filter(user=campaign.user)
+        custom_tag_data = []
+        for tag in tags:
+            temp_list = []
+            data = tags_data.objects.filter(user=campaign.user).filter(tag=tag)
+            for d in data:
+                temp_list.append(d.data)
+            custom_tag_data.append({tag.tag_name:temp_list})
+        emails = [mail.email for mail in AudienceData.objects.filter(user=campaign.user,tag=campaign.audience_data)]
+        msgs = Messages.objects.filter(user=campaign.user)
+        if not msgs:
+            return JsonResponse({'status':False,'data':{'error':'No Message Added'}}, safe=False)
+        messages = []
+        for mail in msgs: 
+            rendered_message = render_to_string('template.html', {'message': mail.content})
+            temp = {
+                'subject': mail.subject,
+                'mail': rendered_message,
+                'format_type': mail.format_type,
+                'attachment_content': mail.attachment_content,
+                'file_name': mail.file_name,
+                'sender_name': mail.sender_name,
+                'unsuscribe_url': mail.unsuscribe_url,
+                'attachment': mail.attachment.url if mail.attachment else None
+            }
+            messages.append(temp)
+        accounts = []
+        if campaign.send_from == 'API':
+            accountsObjects = EmailAccounts.objects.filter(user=campaign.user)
+            if not accountsObjects:
+                return JsonResponse({'status':False,'data':{'error':'No Email Accounts Added'}}, safe=False)
+            for account in accountsObjects:
+                if account.expiry_time and account.expiry_time < now():
+                    account.google_token = None
+                    account.expiry_time = None
+                    account.save()
+            for acc in accountsObjects:
+                accounts.append({'user':acc.user.username,'email':acc.email, 'password':acc.password, 'google_token':acc.google_token, 'credentials':acc.credentials})
+        else:
+            accountsObjects = SMTPConfiguration.objects.filter(user=campaign.user)
+            if not accountsObjects:
+                return JsonResponse({'status':False,'data':{'error':'No Email Accounts Added'}}, safe=False)
+            for acc in accountsObjects:
+                accounts.append({'host':acc.host,'port':acc.port, 'secure':acc.secure, 'auth': {'user': acc.auth_user, 'pass': acc.auth_password}})
+        campaign_data = {
+                'id': campaign.id,
+                'custom_tags': custom_tag_data,
+                'accounts': accounts,
+                'emails': emails,
+                'messages': messages,
+                'send_from': campaign.send_from,
+            }
+        # Return JSON response
+        return JsonResponse({'status':True,'data':campaign_data}, safe=False)
+    except Exception as e:
+        return JsonResponse({'status':False,'data':e}, safe=False)
+
 
 def getRandomTagValue(request, id, tagName):
     try:

@@ -8,6 +8,14 @@ urlpatterns = [
     path('logout/', views.handlelogout, name='logout'),
     path('register/', views.register, name='register'),
     path('home/', views.home, name='home'),
+    # SMTP ACCOUNTS
+    # path('email-accounts/', views.email_accounts, name='email-accounts'),
+    path('add-smtp/', views.add_smtp, name='add-smtp'),
+    path('add-smtp-bulk/', views.add_smtp_bulk, name='add-smtp-bulk'),
+    path('smtp-configurations/', views.smtp_configurations, name='smtp-configurations'),
+    path('smtp-configurations/delete-all/', views.smtp_delete_all, name='smtp_delete_all'),
+    path('smtp-configuration/<int:pk>/delete/', views.smtp_configuration_delete, name='smtp_configuration_delete'),
+    # END SMTP ACCOUNTS
     # EMAIL ACCOUNTS
     path('email-accounts/', views.email_accounts, name='email-accounts'),
     path('add-account/', views.email_account_create, name='add-account'),
@@ -39,6 +47,7 @@ urlpatterns = [
     # end campaigns
 
     path('create-campaign/', views.create_campaign, name='create_campaign'),
+    path('campaign/<int:pk>/start/', views.start_campaign, name='start_campaign'),
     path("getcampaigns/<str:ipaddress>",views.getcampaigns,name='getcampaigns'),
     path('getRandomTagValue/<int:id>/<str:tagName>', views.getRandomTagValue, name='getRandomTagValue'),
     path('api/email-accounts/', views.EmailAccountsAPIView.as_view(), name='email-accounts-api'),

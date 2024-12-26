@@ -39,6 +39,31 @@ class SoftwarePermissionsAdmin(admin.ModelAdmin):
     def get_queryset(self, request):
         return super().get_queryset(request)
 
+@admin.register(SMTPConfiguration)
+class SMTPConfigurationAdmin(admin.ModelAdmin):
+    # Fields to display in the list view
+    list_display = ('user','host', 'port', 'secure', 'auth_user', 'is_secure_display')
+    list_filter = ('user','secure')  # Filter options for SSL/TLS
+    search_fields = ('user','host', 'auth_user')  # Enable search functionality
+    ordering = ('user',)  # Default ordering by host
+
+    # Fields to display in the form view
+    fieldsets = (
+        ('SMTP Server Details', {
+            'fields': ('user','host', 'port', 'secure'),
+            'description': "Enter the details for your SMTP server."
+        }),
+        ('Authentication', {
+            'fields': ('auth_user', 'auth_password'),
+            'description': "Provide the credentials for SMTP authentication."
+        }),
+    )
+
+    # Customize the admin form behavior
+    def is_secure_display(self, obj):
+        return "Yes" if obj.secure else "No"
+    is_secure_display.short_description = "Uses SSL/TLS"
+
 
 @admin.register(EmailAccounts)
 class EmailAccountsAdmin(admin.ModelAdmin):
@@ -49,9 +74,9 @@ class EmailAccountsAdmin(admin.ModelAdmin):
 
 @admin.register(AudienceData)
 class AudienceDataAdmin(admin.ModelAdmin):
-    list_display = ('email', 'user')
-    search_fields = ('email',)
-    list_filter = ('user',)
+    list_display = ('email', 'user', 'tag')
+    search_fields = ('email','tag')
+    list_filter = ('user','tag')
 
 @admin.register(Tags)
 class TagsAdmin(admin.ModelAdmin):
@@ -73,9 +98,9 @@ class MessagesAdmin(admin.ModelAdmin):
 
 @admin.register(Campaign)
 class CampaignAdmin(admin.ModelAdmin):
-    list_display = ('user', 'status', 'ip_address', 'date_time')
+    list_display = ('user', 'status', 'ip_address', 'audience_data', 'send_from','date_time')
     search_fields = ('ip_address', 'user__username')
-    list_filter = ('status', 'date_time')
+    list_filter = ('status', 'date_time','audience_data', 'send_from')
     ordering = ('-date_time',)
 
 # Inline Configurations

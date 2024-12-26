@@ -5,6 +5,7 @@ from django.utils.timezone import now, timedelta
 
 status_choices = [
         ('success', 'success'),
+        ('processing', 'processing'),
         ('created', 'created'),
     ]
 
@@ -44,6 +45,25 @@ class Credentials(models.Model):
     def __str__(self):
         return f"Credentials {self.id}"
 
+class SMTPConfiguration(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,null=True,blank=True)
+    SMTP_SECURITY_CHOICES = [
+        (False, 'Non-SSL/TLS (Default Port 587)'),
+        (True, 'SSL/TLS (Port 465)')
+    ]
+
+    host = models.CharField(max_length=255, help_text="SMTP host, e.g., 'smtp.example.com'")
+    port = models.PositiveIntegerField(default=587, help_text="SMTP port, e.g., 587 for TLS or 465 for SSL")
+    secure = models.BooleanField(
+        choices=SMTP_SECURITY_CHOICES,
+        default=False,
+        help_text="True for SSL/TLS (Port 465), False for non-SSL/TLS (Port 587)"
+    )
+    auth_user = models.EmailField(help_text="Email address used for SMTP authentication")
+    auth_password = models.CharField(max_length=128, help_text="Password for the SMTP authentication email")
+
+    def __str__(self):
+        return f"{self.auth_user} ({self.host}:{self.port})"
 
 class EmailAccounts(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -69,6 +89,7 @@ class EmailAccounts(models.Model):
 
 class AudienceData(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    tag = models.CharField(max_length=50, default="First Campaign")
     email = models.CharField(max_length=50, default="")
 
     def __str__(self):
@@ -191,6 +212,12 @@ class Campaign(models.Model):
     status = models.CharField(choices=status_choices, max_length=12, default="created")
     ip_address = models.GenericIPAddressField(blank=True, null=True)
     date_time = models.DateTimeField(auto_now_add=True)
+    audience_data = models.CharField(max_length=255, default="Target")  # New field
+    send_from = models.CharField(choices=[
+        ('API', 'API'),
+        ('SMTP', 'SMTP'),
+    ], max_length=10, default='API')  # New field
+
 
     def __str__(self):
         return f'{self.user.username.upper()} started a Campaign at Machine IP Address: {self.ip_address} at {self.date_time}.'

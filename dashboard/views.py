@@ -370,6 +370,7 @@ def upload_messages(request):
                     'HTML_TO_PDF': 'can_use_html_to_pdf',
                     'HTML_TO_IMG_TO_PDF': 'can_use_html_to_img_to_pdf',
                     'ONLY_IMG': 'Image as Content',
+                    'HTML_IMG_INLINE': 'HTML to Image Inline'
                 }
                 permission_key = PERMISSION_MAP.get(instance.format_type)
 

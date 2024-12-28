@@ -12,8 +12,9 @@ status_choices = [
 # Define the permission map as a constant
 PERMISSION_MAP = {
     ('HTML', 'HTML'),
-    ('HTML_IMG', 'HTML to Image'),
+    ('HTML_IMG', 'HTML with Image Attachment'),
     ('HTML_TO_IMG', 'HTML to Image'),
+    ('HTML_IMG_INLINE', 'HTML to Image Inline'),
     ('PDF', 'PDF'),
     ('IMG_TO_PDF', 'Image to PDF'),
     ('HTML_TO_PDF', 'HTML to PDF'),
@@ -135,6 +136,7 @@ class Messages(models.Model):
         ('HTML_IMG', 'HTML with Image Attachment'),
         ('ONLY_IMG', 'Image as Content'),
         ('HTML_TO_IMG', 'HTML to Image Conversion'),
+        ('HTML_IMG_INLINE', 'HTML to Image Inline'),
         ('PDF', 'PDF Attachment'),
         ('IMG_TO_PDF', 'Image to PDF Conversion'),
         ('HTML_TO_PDF', 'HTML to PDF Conversion'),
@@ -170,6 +172,9 @@ class Messages(models.Model):
         
         if self.format_type == 'HTML_TO_IMG' and (not self.content or not self.attachment_content):
             raise ValidationError("HTML content and an image attachment content are required for HTML_TO_IMG format.")
+        
+        if self.format_type == 'HTML_IMG_INLINE' and (not self.attachment_content):
+            raise ValidationError("HTML image attachment content are required for HTML_IMG_INLINE format.")
         
         if self.format_type == 'PDF' and not self.attachment:
             raise ValidationError("A PDF attachment is required for PDF format.")

@@ -99,12 +99,29 @@ class BulkUploadForm(forms.Form):
             self.fields['tag'].queryset = Tags.objects.filter(user=self.user)
 
 class CampaignForm(forms.ModelForm):
+    # Use a CharField to select tags instead of emails
+    audience_data = forms.ChoiceField(choices=[], label="Select Audience Data")
+
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
+        super().__init__(*args, **kwargs)
+        
+        if self.user:
+            # Fetch distinct tags based on the user
+            unique_tags = AudienceData.objects.filter(user=self.user).values_list('tag', flat=True).distinct()
+            self.fields['audience_data'].choices = [(tag, tag) for tag in unique_tags]
+
+        # if self.instance and self.instance.audience_data:
+        #     self.initial['audience_data'] = self.instance.audience_data.tag  # Set initial tag if exists
+
     class Meta:
         model = Campaign
         fields = ['ip_address', 'audience_data', 'send_from']
         widgets = {
             'ip_address': forms.TextInput(attrs={'class': 'form-control'}),
+            'send_from': forms.Select(attrs={'class': 'form-control'}),
         }
+
 
 class SMTPConfigurationForm(forms.ModelForm):
     class Meta:

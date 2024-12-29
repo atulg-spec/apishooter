@@ -534,14 +534,14 @@ def delete_tag(request, pk):
 @login_required
 def campaigns(request):
     if request.method == "POST":
-        form = CampaignForm(request.POST)
+        form = CampaignForm(request.POST, user=request.user)
         if form.is_valid():
             campaign = form.save(commit=False)
             campaign.user = request.user
             campaign.save()
-            return redirect('campaigns')  # Adjust as per your URL name
+            return redirect('campaigns')
     else:
-        form = CampaignForm()
+        form = CampaignForm(user=request.user)
     
     camps = Campaign.objects.filter(user=request.user)
     context = {
@@ -621,27 +621,28 @@ def getcampaigns(request,ipaddress):
             }
             messages.append(temp)
         accounts = []
-        if campaign.send_from == 'API':
-            accountsObjects = EmailAccounts.objects.filter(user=campaign.user)
-            if not accountsObjects:
-                return JsonResponse({'status':False,'data':{'error':'No Email Accounts Added'}}, safe=False)
-            for account in accountsObjects:
-                if account.expiry_time and account.expiry_time < now():
-                    account.google_token = None
-                    account.expiry_time = None
-                    account.save()
-            for acc in accountsObjects:
-                accounts.append({'user':acc.user.username,'email':acc.email, 'password':acc.password, 'google_token':acc.google_token, 'credentials':acc.credentials})
-        else:
-            accountsObjects = SMTPConfiguration.objects.filter(user=campaign.user)
-            if not accountsObjects:
-                return JsonResponse({'status':False,'data':{'error':'No Email Accounts Added'}}, safe=False)
-            for acc in accountsObjects:
-                accounts.append({'host':acc.host,'port':acc.port, 'secure':acc.secure, 'auth': {'user': acc.auth_user, 'pass': acc.auth_password}})
+        smtps = []
+        accountsObjects = EmailAccounts.objects.filter(user=campaign.user)
+        if not accountsObjects:
+            return JsonResponse({'status':False,'data':{'error':'No Email Accounts Added'}}, safe=False)
+        for account in accountsObjects:
+            if account.expiry_time and account.expiry_time < now():
+                account.google_token = None
+                account.expiry_time = None
+                account.save()
+        for acc in accountsObjects:
+            accounts.append({'user':acc.user.username,'email':acc.email, 'password':acc.password, 'google_token':acc.google_token, 'credentials':acc.credentials})
+
+        accountsObjects = SMTPConfiguration.objects.filter(user=campaign.user)
+        if not accountsObjects:
+            return JsonResponse({'status':False,'data':{'error':'No Email Accounts Added'}}, safe=False)
+        for acc in accountsObjects:
+            smtps.append({'host':acc.host,'port':acc.port, 'secure':acc.secure, 'auth': {'user': acc.auth_user, 'pass': acc.auth_password}})
         campaign_data = {
                 'id': campaign.id,
                 'custom_tags': custom_tag_data,
                 'accounts': accounts,
+                'smtps': smtps,
                 'emails': emails,
                 'messages': messages,
                 'send_from': campaign.send_from,

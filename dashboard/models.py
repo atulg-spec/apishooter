@@ -221,6 +221,7 @@ class Campaign(models.Model):
     send_from = models.CharField(choices=[
         ('API', 'API'),
         ('SMTP', 'SMTP'),
+        ('RANDOM', 'RANDOM'),
     ], max_length=10, default='API')  # New field
 
 

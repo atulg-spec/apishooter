@@ -111,7 +111,7 @@ def add_smtp_bulk(request):
 @login_required
 def smtp_configurations(request):
     """View to display all SMTP configurations."""
-    configurations = SMTPConfiguration.objects.all()
+    configurations = SMTPConfiguration.objects.filter(user=request.user)
     return render(request, 'dashboard/smtp_configurations.html', {'configurations': configurations})
 
 @login_required
